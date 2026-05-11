@@ -3,9 +3,16 @@ import api from "../../api/axiosInstance";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
-import { GraduationCap, Mail, Lock, User, FileText, ShieldCheck, Chrome } from "lucide-react";
 
-import { authUi } from "./authUi";
+import {
+  GraduationCap,
+  Mail,
+  Lock,
+  User,
+  FileText,
+  ShieldCheck,
+  Chrome,
+} from "lucide-react";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -18,7 +25,6 @@ const Register = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Block register if already logged in
   useEffect(() => {
     if (user) navigate("/dashboard");
   }, [user, navigate]);
@@ -27,6 +33,7 @@ const Register = () => {
     e.preventDefault();
 
     if (submitting) return;
+
     setSubmitting(true);
     setError("");
 
@@ -42,7 +49,9 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       const message =
-        error.response?.data?.message || error.message || "Registration failed";
+        error.response?.data?.message ||
+        error.message ||
+        "Registration failed";
 
       setError(message);
       toast.error(message);
@@ -51,196 +60,236 @@ const Register = () => {
     setSubmitting(false);
   };
 
-  const handleInputChange = (setter) => (e) => {
-    setter(e.target.value);
-    if (error) setError("");
-  };
-
   const handleGoogleSignIn = () => {
     toast.info("Google sign-in isn't enabled yet.");
   };
 
   return (
-    <div className={authUi.page}>
-      {/* LEFT SIDE - FORM */}
-      <div className={authUi.leftPanel}>
-        <div className={authUi.leftInner}>
-          <div className={authUi.brandRow}>
-            <div className={authUi.brandMark} aria-hidden="true">
+    <div className="min-h-screen flex bg-white overflow-hidden">
+      {/* LEFT SIDE */}
+      <div className="hidden lg:flex lg:w-[42%] bg-white min-h-screen items-center justify-center px-12 xl:px-16">
+        <div className="w-full max-w-md">
+          {/* Brand */}
+          <div className="flex items-center gap-3 mb-10">
+            <div className="h-11 w-11 rounded-2xl bg-[#5b4cf0] flex items-center justify-center text-white shadow-sm">
               <GraduationCap className="h-5 w-5" />
             </div>
+
             <div>
-              <p className={authUi.brandName}>EduEx</p>
-              <p className={authUi.brandTagline}>Online examination portal</p>
+              <h2 className="text-[26px] font-semibold text-black leading-none">
+                EduEx
+              </h2>
+
+              <p className="text-sm text-gray-500 mt-1">
+                Online examination portal
+              </p>
             </div>
           </div>
 
-          <h1 className={authUi.title}>Create your account</h1>
-          <p className={authUi.subtitle}>Sign up to get started with EduEx</p>
+          {/* Heading */}
+          <div className="mb-7">
+            <h1 className="text-[46px] leading-[1.02] tracking-tight font-semibold text-black">
+              Create your account
+            </h1>
 
-          <form onSubmit={handleRegister} className={authUi.form} aria-busy={submitting}>
-            {/* Error Box */}
+            <p className="text-gray-500 text-base mt-3">
+              Sign up to get started with EduEx
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleRegister} className="space-y-4">
             {error && (
-              <div className={authUi.errorBox} role="alert" aria-live="polite" id="register-error">
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {error}
               </div>
             )}
 
             {/* Name */}
             <div>
-              <label className={authUi.label} htmlFor="register-name">
-                Full name
+              <label className="block text-[12px] uppercase tracking-[0.08em] font-semibold text-gray-700 mb-2">
+                Full Name
               </label>
+
               <div className="relative">
-                <User className={authUi.inputIcon} size={18} aria-hidden="true" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+
                 <input
-                  id="register-name"
-                  name="name"
                   type="text"
-                  autoComplete="name"
                   value={name}
-                  onChange={handleInputChange(setName)}
-                  required
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (error) setError("");
+                  }}
                   placeholder="John Doe"
-                  aria-invalid={Boolean(error)}
-                  aria-describedby={error ? "register-error" : undefined}
-                  className={`${authUi.inputBase} ${authUi.inputWithIconPadding} ${error ? authUi.inputError : authUi.inputNormal}`}
+                  required
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white pl-11 pr-4 text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#5b4cf0]/10 focus:border-[#5b4cf0] transition-all"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className={authUi.label} htmlFor="register-email">
-                Email address
+              <label className="block text-[12px] uppercase tracking-[0.08em] font-semibold text-gray-700 mb-2">
+                Email Address
               </label>
+
               <div className="relative">
-                <Mail className={authUi.inputIcon} size={18} aria-hidden="true" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+
                 <input
-                  id="register-email"
-                  name="email"
                   type="email"
-                  inputMode="email"
-                  autoComplete="email"
                   value={email}
-                  onChange={handleInputChange(setEmail)}
-                  required
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError("");
+                  }}
                   placeholder="student@college.edu"
-                  aria-invalid={Boolean(error)}
-                  aria-describedby={error ? "register-error" : undefined}
-                  className={`${authUi.inputBase} ${authUi.inputWithIconPadding} ${error ? authUi.inputError : authUi.inputNormal}`}
+                  required
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white pl-11 pr-4 text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#5b4cf0]/10 focus:border-[#5b4cf0] transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className={authUi.label} htmlFor="register-password">
+              <label className="block text-[12px] uppercase tracking-[0.08em] font-semibold text-gray-700 mb-2">
                 Password
               </label>
+
               <div className="relative">
-                <Lock className={authUi.inputIcon} size={18} aria-hidden="true" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+
                 <input
-                  id="register-password"
-                  name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
                   value={password}
-                  onChange={handleInputChange(setPassword)}
-                  required
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError("");
+                  }}
                   placeholder="••••••••"
-                  aria-invalid={Boolean(error)}
-                  aria-describedby={error ? "register-error" : undefined}
-                  className={`${authUi.inputBase} ${authUi.inputWithIconPadding} pr-14 ${error ? authUi.inputError : authUi.inputNormal}`}
+                  required
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white pl-11 pr-16 text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#5b4cf0]/10 focus:border-[#5b4cf0] transition-all"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-600 hover:text-indigo-700 dark:text-slate-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 rounded"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#5b4cf0] hover:text-[#4338ca]"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
 
-            {/* Button */}
-            <button type="submit" disabled={submitting} className={authUi.primaryButton}>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-12 rounded-xl bg-[linear-gradient(135deg,#4f46e5_0%,#6d5ef5_100%)] text-white font-semibold text-[15px] shadow-lg shadow-indigo-500/20 hover:scale-[1.01] transition-all"
+            >
               {submitting ? "Creating account..." : "Create account"}
             </button>
 
             {/* Divider */}
-            <div className={authUi.dividerRow} aria-hidden="true">
-              <div className={authUi.dividerLine} />
-              <span className={authUi.dividerText}>or continue with</span>
-              <div className={authUi.dividerLine} />
+            <div className="flex items-center gap-4 py-1">
+              <div className="h-px bg-gray-200 flex-1" />
+
+              <span className="text-sm text-gray-400">
+                or continue with
+              </span>
+
+              <div className="h-px bg-gray-200 flex-1" />
             </div>
 
-            {/* Google SSO */}
-            <button type="button" onClick={handleGoogleSignIn} className={authUi.ssoButton}>
-              <span className={authUi.ssoButtonInner}>
-                <Chrome className="h-5 w-5" aria-hidden="true" />
+            {/* Google */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full h-12 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition-all"
+            >
+              <span className="flex items-center justify-center gap-3 font-medium text-gray-800">
+                <Chrome className="h-5 w-5" />
                 Continue with Google
               </span>
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className={authUi.footerText}>
+          {/* Footer */}
+          <p className="mt-5 text-[15px] text-gray-500 text-center">
             Already have an account?{" "}
-            <Link to="/login" className={authUi.footerLink}>
-              Sign in
+            <Link
+              to="/login"
+              className="font-semibold text-[#5b4cf0] hover:text-[#4338ca]"
+            >
+              Sign in →
             </Link>
           </p>
         </div>
       </div>
 
-      {/* RIGHT SIDE - BRANDING PANEL */}
-      <div className={authUi.rightPanel}>
-        <div className={authUi.decorationA} />
-        <div className={authUi.decorationB} />
+      {/* RIGHT SIDE */}
+      <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden items-center justify-center bg-[linear-gradient(135deg,#4338ca_0%,#5b4cf0_45%,#7c3aed_100%)] text-white">
+        {/* Glow Effects */}
+        <div className="absolute w-[420px] h-[420px] rounded-full bg-white/10 blur-3xl top-[-140px] right-[-140px] opacity-40" />
 
-        <div className={authUi.rightInner}>
-          <div className={`${authUi.glassCard} ${authUi.glassCardInner} flex items-center gap-4`}>
-            <div className="h-12 w-12 rounded-xl bg-white/15 grid place-items-center" aria-hidden="true">
+        <div className="absolute w-[320px] h-[320px] rounded-full bg-white/10 blur-3xl bottom-[-120px] left-[-120px] opacity-25" />
+
+        <div className="relative z-10 w-full max-w-xl px-10 flex flex-col gap-4">
+          {/* Feature Card */}
+          <div className="bg-white/12 backdrop-blur-xl border border-white/20 rounded-[28px] px-7 py-5 flex items-center gap-5 shadow-2xl shadow-black/10">
+            <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center">
               <FileText className="h-6 w-6" />
             </div>
+
             <div>
-              <p className="text-sm font-semibold">Smart Exams</p>
-              <p className="text-xs text-white/80">Adaptive, proctored and fair</p>
+              <h3 className="text-[30px] font-semibold">
+                Smart Exams
+              </h3>
+
+              <p className="text-white/70 mt-1 text-sm">
+                Adaptive, proctored & fair
+              </p>
             </div>
           </div>
 
-          <div className={authUi.statGrid}>
-            <div className={authUi.statCard}>
-              <div className={authUi.statValue}>12k+</div>
-              <div className={authUi.statLabel}>Students</div>
-            </div>
-            <div className={authUi.statCard}>
-              <div className={authUi.statValue}>98%</div>
-              <div className={authUi.statLabel}>Pass rate</div>
-            </div>
-            <div className={authUi.statCard}>
-              <div className={authUi.statValue}>500+</div>
-              <div className={authUi.statLabel}>Exams</div>
-            </div>
-            <div className={authUi.statCard}>
-              <div className={authUi.statValue}>4.9</div>
-              <div className={authUi.statLabel}>Rating</div>
-            </div>
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              ["12k+", "Students"],
+              ["98%", "Pass rate"],
+              ["500+", "Exams"],
+              ["4.9★", "Rating"],
+            ].map(([value, label]) => (
+              <div
+                key={label}
+                className="bg-white/12 backdrop-blur-xl border border-white/20 rounded-[24px] py-6 text-center shadow-xl shadow-black/5"
+              >
+                <div className="text-4xl font-semibold tracking-tight">
+                  {value}
+                </div>
+
+                <div className="text-white/70 text-sm mt-2">
+                  {label}
+                </div>
+              </div>
+            ))}
           </div>
 
-          <div>
-            <div className={authUi.rightTitle}>Your exams, simplified</div>
-            <div className={authUi.rightSubtitle}>
+          {/* Bottom Content */}
+          <div className="flex flex-col items-center text-center gap-2 pt-2">
+            <h2 className="text-[36px] leading-tight font-semibold tracking-tight max-w-lg">
+              Your exams, simplified
+            </h2>
+
+            <p className="text-white/70 text-base leading-relaxed max-w-md">
               Secure, smart and stress-free online examination experience
-            </div>
-          </div>
+            </p>
 
-          <div className={authUi.pill}>
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            End-to-end encrypted and proctored
+            <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl px-4 py-1.5 text-sm text-white/90">
+              <ShieldCheck className="h-4 w-4" />
+              End-to-end encrypted & proctored
+            </div>
           </div>
         </div>
       </div>
