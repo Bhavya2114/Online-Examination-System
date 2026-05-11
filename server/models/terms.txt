@@ -1,0 +1,19 @@
+// populate() in Mongoose:
+We store only the ObjectId of the related document. When we use populate(), Mongoose uses that ObjectId and the ref field to fetch and replace it with the complete document from the referenced collection.
+❌ “With population we get exact id”
+✅ “With population we use the id to get full document details.”
+
+
+// ref in Mongoose:
+ref tells Mongoose which collection the stored ObjectId belongs to. It is used to create relationships between collections and enables population.
+
+
+// What is compound index?
+A compound index is an index created on multiple fields together to improve query performance and enforce uniqueness on their combination.
+
+
+// Should we create index on every field?
+No, we should not create indexes on every field. Indexes improve read performance but increase write overhead and memory usage. We only create indexes on fields that are frequently used in filtering, searching, or sorting queries.
+
+And Understand this is like Array ->MongoDB uses a B-tree sorted structure,
+not an actual array,
