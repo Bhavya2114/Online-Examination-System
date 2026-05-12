@@ -10,34 +10,43 @@ const DashboardLayout = () => {
 
   const location = useLocation();
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-[#f5f7fb]">
+  const isDashboard = location.pathname === "/dashboard";
 
-      {/* Sidebar */}
+  return (
+    <div className="flex h-screen bg-[#f7f8fc] overflow-hidden">
+
+      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* Main Layout */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      {/* MAIN WRAPPER */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
 
-        {/* ONLY DASHBOARD PAGE */}
-        {location.pathname === "/dashboard" && (
-          <Topbar user={user} />
-        )}
+        {/* TOPBAR ONLY FOR DASHBOARD */}
+        {isDashboard && <Topbar user={user} />}
 
-        {/* Content */}
+        {/* MAIN CONTENT */}
         <main
-  className={`flex-1 overflow-y-auto overflow-x-hidden ${
-    location.pathname === "/dashboard"
-      ? "scrollbar-hide"
-      : ""
-  }`}
->
+          className={`
+            flex-1
+            overflow-y-auto
+            overflow-x-hidden
+            ${isDashboard ? "scrollbar-hide" : ""}
+          `}
+        >
 
+          {/* PAGE CONTAINER */}
           <div
-  className={`max-w-[1600px] mx-auto min-h-full px-8 py-6 ${
-    location.pathname === "/dashboard" ? "" : "pt-8"
-  }`}
->
+            className={`
+              w-full
+              max-w-[1700px]
+              mx-auto
+              min-h-full
+              px-5
+              lg:px-8
+              py-5
+              ${isDashboard ? "" : "pt-7"}
+            `}
+          >
 
             <Outlet />
 

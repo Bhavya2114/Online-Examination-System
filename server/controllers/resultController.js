@@ -17,20 +17,21 @@ function formatTime(seconds) {
 const getMyResults = async (req, res) => {
   try {
     const results = await Result.find({ student: req.user._id })
-      .populate("exam", "name subject totalMarks duration endTime")
+      .populate("exam", "name subject duration totalMarks endTime")
       .sort({ createdAt: -1 })
       .lean();
 
     const now = new Date();
 
     const formattedResults = results
-      .filter((result) => result.exam && result.exam.endTime <= now)
-      .map((result) => ({
+  .filter((result) => result.exam)
+  .map((result) => ({
         resultId: result._id,
         examId: result.exam._id,
         examName: result.exam.name,
         subject: result.exam.subject,
         totalMarks: result.exam.totalMarks,
+        endTime: result.exam.endTime,
         duration: result.exam.duration,
         score: result.score,
         percentage: result.percentage,
@@ -148,14 +149,7 @@ const getResultDetails = async (req, res) => {
     }
 
     // 🔐 Time-based Access: Results available only after exam ends
-    const now = new Date();
-    if (result.exam.endTime > now) {
-      return res.status(403).json({
-        success: false,
-        message: "Results will be available after exam ends",
-        availableAt: result.exam.endTime
-      });
-    }
+    
 
     // STEP 2: Build answer lookup map for O(1) access
     const answerMap = {};

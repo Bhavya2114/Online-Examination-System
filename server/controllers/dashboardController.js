@@ -120,23 +120,55 @@ const getAdminDashboardStats = async (req, res) => {
 const getStudentDashboardExams = async (req, res) => {
   try {
     const now = new Date();
+    const studentId = req.user._id;
 
-    // Fetch ONLY active exams within time window with questions
+    // Active exams
     const exams = await Exam.find({
-      status: 'active',
+      status: "active",
       startTime: { $lte: now },
       endTime: { $gte: now },
-      'questions.0': { $exists: true }  // Must have at least one question
+      "questions.0": { $exists: true },
     })
-    .select('_id name subject duration totalMarks passingMarks startTime endTime')
-    .lean();
+      .select(
+        "_id name subject duration totalMarks passingMarks startTime endTime"
+      )
+      .lean();
 
-    // Return empty array if no exams found
-    res.status(200).json(exams || []);
+    // Student results
+    const studentResults = await Result.find({
+      student: studentId,
+    }).select("exam");
+
+    // Create completed exam ID set
+    const completedExamIds = new Set(
+      studentResults.map((result) => result.exam.toString())
+    );
+
+    // Add attempted flag
+    const examsWithStatus = exams
+  .map((exam) => ({
+    ...exam,
+    isAttempted: completedExamIds.has(exam._id.toString()),
+  }))
+  .sort((a, b) => {
+    // Active exams first
+    if (a.isAttempted === b.isAttempted) return 0;
+
+    return a.isAttempted ? 1 : -1;
+  });
+
+    res.status(200).json(examsWithStatus);
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-module.exports = { getStudentDashboard, getAdminDashboardStats, getStudentDashboardExams };
+
+module.exports = {
+  getStudentDashboard,
+  getAdminDashboardStats,
+  getStudentDashboardExams,
+};

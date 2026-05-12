@@ -17,62 +17,102 @@ const Topbar = ({
     user?.role === "admin"
       ? "Admin Dashboard"
       : user?.role === "owner"
-        ? "Owner Dashboard"
-        : "Dashboard";
+      ? "Owner Dashboard"
+      : "Dashboard";
 
   return (
-    <header className="bg-white border-b border-slate-200/80 px-8 py-5 shrink-0">
+    <header className="bg-white border-b border-gray-200 shrink-0">
 
-      <div className="flex items-start justify-between gap-6">
+      <div className="px-5 lg:px-8 py-5">
 
-        {/* LEFT */}
-        <div>
+        <div className="flex items-center justify-between gap-5">
 
-          <h1 className="text-[42px] leading-[1.1] font-bold tracking-[-1px] text-slate-900">
-            {title || defaultTitle}
-          </h1>
+          {/* LEFT */}
+          <div className="min-w-0">
 
-          <p className="mt-2 text-[15px] text-slate-500">
+            <h1 className="text-[30px] lg:text-[34px] leading-tight font-semibold tracking-tight text-gray-900">
+              {title || defaultTitle}
+            </h1>
 
-            {subtitle || (
-              <>
-                {dateText}
+            <p className="mt-1.5 text-sm text-gray-500 flex flex-wrap items-center">
 
-                <span className="mx-2 text-slate-300">
-                  —
-                </span>
+              {subtitle || (
+                <>
+                  <span>
+                    {dateText}
+                  </span>
 
-                Welcome back,
-                <span className="font-medium text-slate-700 ml-1">
-                  {user?.name || "User"}
-                </span>
-              </>
-            )}
+                  <span className="mx-2 text-gray-300">
+                    •
+                  </span>
 
-          </p>
+                  <span>
+                    Welcome back,
+                  </span>
 
-        </div>
+                  <span className="font-medium text-gray-700 ml-1">
+                    {user?.name || "User"}
+                  </span>
+                </>
+              )}
 
-        {/* RIGHT */}
-        <div className="flex items-center gap-3 shrink-0">
+            </p>
 
-          {/* Notification */}
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative w-11 h-11 rounded-2xl border border-slate-200/80 bg-white flex items-center justify-center text-slate-600 shadow-sm hover:bg-slate-50 transition-all duration-200"
-          >
+          </div>
 
-            <Bell className="w-[18px] h-[18px]" />
+          {/* RIGHT */}
+          <div className="flex items-center gap-3 shrink-0">
 
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+            {/* Notification */}
+            <button
+              type="button"
+              aria-label="Notifications"
+              className="
+                relative
+                w-11
+                h-11
+                rounded-xl
+                border
+                border-gray-200
+                bg-white
+                flex
+                items-center
+                justify-center
+                text-gray-600
+                hover:bg-gray-50
+                transition-all
+                duration-200
+              "
+            >
 
-          </button>
+              <Bell className="w-[18px] h-[18px]" />
 
-          {/* Avatar */}
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#5c51e8] to-[#7c3aed] flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-indigo-500/20">
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
 
-            {user?.name?.[0]?.toUpperCase() || "A"}
+            </button>
+
+            {/* Avatar */}
+            <div
+              className="
+                w-11
+                h-11
+                rounded-xl
+                bg-gradient-to-br
+                from-indigo-500
+                to-violet-600
+                flex
+                items-center
+                justify-center
+                text-white
+                text-sm
+                font-semibold
+                shadow-md
+              "
+            >
+
+              {user?.name?.[0]?.toUpperCase() || "A"}
+
+            </div>
 
           </div>
 

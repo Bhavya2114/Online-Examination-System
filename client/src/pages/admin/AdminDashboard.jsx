@@ -96,64 +96,60 @@ const AdminDashboard = () => {
   };
 
   const getExamProgress = (exam) => {
-    const durationMinutes = Number(exam.duration) || 0;
 
-    const status = String(
-      exam.status || 'draft'
-    ).toLowerCase();
+  const startTime = exam.startTime
+    ? new Date(exam.startTime)
+    : null;
 
-    if (status === 'completed') {
-      return {
-        progress: 100,
-        elapsedText: `${durationMinutes}m / ${durationMinutes}m`,
-        percentText: '100% elapsed'
-      };
-    }
+  const endTime = exam.endTime
+    ? new Date(exam.endTime)
+    : null;
 
-    if (status === 'draft' || !durationMinutes) {
-      return {
-        progress: 0,
-        elapsedText: `0m / ${durationMinutes}m`,
-        percentText: '0% elapsed'
-      };
-    }
+  const now = new Date();
 
-    const startTime = exam.startTime
-      ? new Date(exam.startTime)
-      : null;
-
-    const now = new Date();
-
-    if (!startTime || Number.isNaN(startTime.getTime())) {
-      return {
-        progress: 0,
-        elapsedText: `0m / ${durationMinutes}m`,
-        percentText: '0% elapsed'
-      };
-    }
-
-    const elapsedMinutes = Math.max(
-      0,
-      Math.min(
-        durationMinutes,
-        (now.getTime() - startTime.getTime()) / 60000
-      )
-    );
-
-    const progress = Math.max(
-      0,
-      Math.min(
-        100,
-        (elapsedMinutes / durationMinutes) * 100
-      )
-    );
-
+  if (
+    !startTime ||
+    !endTime ||
+    Number.isNaN(startTime.getTime()) ||
+    Number.isNaN(endTime.getTime())
+  ) {
     return {
-      progress,
-      elapsedText: `${Math.round(elapsedMinutes)}m / ${durationMinutes}m`,
-      percentText: `${Math.round(progress)}% elapsed`
+      progress: 0,
+      elapsedText: '0h / 0h',
+      percentText: '0% elapsed'
     };
+  }
+
+  const totalWindow =
+    endTime.getTime() - startTime.getTime();
+
+  const elapsedWindow =
+    now.getTime() - startTime.getTime();
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      100,
+      (elapsedWindow / totalWindow) * 100
+    )
+  );
+
+  const totalHours = Math.max(
+    1,
+    Math.floor(totalWindow / (1000 * 60 * 60))
+  );
+
+  const elapsedHours = Math.max(
+    0,
+    Math.floor(elapsedWindow / (1000 * 60 * 60))
+  );
+
+  return {
+    progress,
+    elapsedText: `${elapsedHours}h / ${totalHours}h`,
+    percentText: `${Math.round(progress)}% elapsed`
   };
+};
 
   const getStatusMeta = (exam) => {
     const status = String(
@@ -317,7 +313,7 @@ const AdminDashboard = () => {
                       'Students',
                       'Status',
                       'Progress',
-                      'Date',
+                      'Start Date',
                       'Actions'
                     ].map((heading) => (
                       <th

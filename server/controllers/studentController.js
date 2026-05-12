@@ -68,29 +68,47 @@ const getStudentDashboard = async (req, res) => {
 // @route   GET /api/student/dashboard/recent-results
 // @access  Private (Student)
 const getStudentRecentResults = async (req, res) => {
-    try {
-        const studentId = req.user._id;
+  try {
+    const studentId = req.user._id;
 
-        const recentResults = await ExamResult.find({ student: studentId })
-            .populate("exam", "name")
-            .select("_id percentage createdAt")
-            .sort({ createdAt: -1 })
-            .limit(3)
-            .lean();
+    const now = new Date();
 
-        const formattedResults = recentResults.map(result => ({
-            _id: result._id,
-            percentage: Number(result.percentage.toFixed(1)),
-            createdAt: result.createdAt,
-            exam: result.exam
-        }));
+    const recentResults = await ExamResult.find({
+      student: studentId,
+    })
+      .populate("exam", "name endTime")
+      .select("_id percentage createdAt exam")
+      .sort({ createdAt: -1 })
+      .lean();
 
-        res.status(200).json(formattedResults);
+    // Filter ONLY ended exams
+    const filteredResults = recentResults
+      .filter((result) => {
+        if (!result.exam) return false;
 
-    } catch (error) {
-        console.error("Error fetching recent results:", error.message);
-        res.status(500).json({ message: error.message });
-    }
+        return new Date(result.exam.endTime) <= now;
+      })
+      .slice(0, 3);
+
+    const formattedResults = filteredResults.map((result) => ({
+      _id: result._id,
+      percentage: Number(result.percentage.toFixed(1)),
+      createdAt: result.createdAt,
+      exam: result.exam,
+    }));
+
+    res.status(200).json(formattedResults);
+
+  } catch (error) {
+    console.error(
+      "Error fetching recent results:",
+      error.message
+    );
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 module.exports = { getStudentDashboard, getStudentRecentResults };

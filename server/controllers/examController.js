@@ -148,88 +148,87 @@ const getAllExams = async (req, res) => {
         }
 
         const exams = await Exam.find(filter)
-            .populate('createdBy', 'name email')
-            .lean();
+    .sort({ createdAt: -1 })
+    .populate('createdBy', 'name email')
+    .lean();
 
-        const formattedExams = exams.map(exam => {
-            // Compute examState automatically based on time + questions (fully automatic)
-            let examState = 'draft';
-            const totalQuestions = exam.questions?.length || 0;
-            
-            // Automatic lifecycle logic with draft_expired state:
-            if (totalQuestions === 0 && now > exam.endTime) {
-                examState = 'draft_expired'; // Expired without questions - must reschedule
-            } else if (totalQuestions === 0) {
-                examState = 'draft'; // No questions = draft
-            } else if (now < exam.startTime) {
-                examState = 'draft'; // Before start time = draft
-            } else if (now >= exam.startTime && now <= exam.endTime) {
-                examState = 'active'; // Within time window = active
-            } else {
-                examState = 'completed'; // Past end time = completed
-            }
+        console.log("Exams from DB (before formatting):", exams.length, "exams");
 
-            // Attach examState to exam object
-            const examWithState = { ...exam, examState };
+        const formattedExams = await Promise.all(
+  exams.map(async (exam) => {
+            try {
+                // Compute examState automatically based on time
+                let examState = "scheduled";
 
-            // 👨‍🎓 STUDENT VIEW
-            if (req.user.role === 'student') {
-                // Only apply time-based filtering if no explicit status filter
-                if (!req.query.status) {
-                    if (examState !== 'active') {
-                        return null;
-                    }
+                if (now >= exam.startTime && now <= exam.endTime) {
+                  examState = "active";
                 }
 
-                return {
-                    _id: exam._id,
-                    name: exam.name,
-                    duration: exam.duration,
-                    subject: exam.subject,
-                    startTime: exam.startTime,
-                    endTime: exam.endTime,
-                    examState
-                };
-            }
+                if (now > exam.endTime) {
+                  examState = "completed";
+                }
+                
 
-            // 👑 OWNER VIEW → always full access
-            if (req.user.role === 'owner') {
-                return examWithState;
-            }
+                // Attach examState to exam object
+                const examWithState = { ...exam, examState };
 
-            // 👑 ADMIN VIEW
-            if (req.user.role === 'admin') {
+                // 👨‍🎓 STUDENT VIEW
+                if (req.user.role === 'student') {
+                    
 
-                // If admin created this exam → full details
-                if (exam.createdBy.toString() === req.user._id.toString()) {
+                    const existingSession = await ExamSession.findOne({
+    student: req.user._id,
+    exam: exam._id,
+    isSubmitted: true
+});
+
+return {
+    _id: exam._id,
+    name: exam.name,
+    duration: exam.duration,
+    subject: exam.subject,
+    totalMarks: exam.totalMarks,
+    startTime: exam.startTime,
+    endTime: exam.endTime,
+    examState,
+    hasSubmitted: !!existingSession
+};
+                }
+
+                // 👑 OWNER VIEW → always full access
+                if (req.user.role === 'owner') {
                     return examWithState;
                 }
 
-                // Other admins → all fields but with examState
-                return {
-                    _id: exam._id,
-                    name: exam.name,
-                    duration: exam.duration,
-                    subject: exam.subject,
-                    totalMarks: exam.totalMarks,
-                    passingMarks: exam.passingMarks,
-                    questions: exam.questions,
-                    attemptCount: exam.attemptCount,
-                    startTime: exam.startTime,
-                    endTime: exam.endTime,
-                    negativeMarking: exam.negativeMarking,
-                    negativeMarksPerQuestion: exam.negativeMarksPerQuestion,
-                    status: exam.status,
-                    createdBy: exam.createdBy,
-                    createdAt: exam.createdAt,
-                    updatedAt: exam.updatedAt,
-                    examState
-                };
+                // 👑 ADMIN VIEW
+                if (req.user.role === 'admin') {
+
+                    // If admin created this exam → full details
+                    if (exam.createdBy.toString() === req.user._id.toString()) {
+                        return examWithState;
+                    }
+
+                    // Other admins → all fields but with examState
+                    return {
+        _id: exam._id,
+        name: exam.name,
+        duration: exam.duration,
+        subject: exam.subject,
+        totalMarks: exam.totalMarks,
+        startTime: exam.startTime,
+        endTime: exam.endTime,
+        examState
+    };
+                }
+
+                return null;
+            } catch (mapError) {
+                console.error("Error formatting exam:", exam._id, mapError);
+                return null;
             }
-
-            return null;
-        });
-
+        })
+);
+        console.log("Formatted exams:", formattedExams.filter(Boolean).length, "exams returned");
         res.json(formattedExams.filter(Boolean));
 
     } catch (error) {

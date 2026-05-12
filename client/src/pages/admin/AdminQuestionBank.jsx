@@ -175,7 +175,7 @@ const AdminQuestionBank = () => {
 
   return (
     
-    <div className="h-[calc(100vh-120px)] overflow-y-auto dashboard-scrollbar p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       {/* Header Section */}
       
       <div className="mb-8 flex items-center justify-between">

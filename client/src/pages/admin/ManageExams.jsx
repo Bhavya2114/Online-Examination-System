@@ -506,6 +506,223 @@ const ManageExams = () => {
         </div>
       )}
 
+{/* Create/Edit Exam Modal */}
+{showModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+
+    {/* Modal */}
+    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+
+        <h2 className="text-2xl font-bold text-gray-800">
+          {isEditing ? "Edit Exam" : "Create New Exam"}
+        </h2>
+
+        <button
+          onClick={() => {
+            setShowModal(false);
+            resetForm();
+          }}
+          className="text-gray-400 hover:text-gray-600 text-2xl"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Exam Name */}
+        <div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Exam Name <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder="e.g., Mid Term Examination"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+        </div>
+
+        {/* Subject */}
+        <div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Subject <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="text"
+            name="subject"
+            value={formData.subject}
+            onChange={handleInputChange}
+            placeholder="e.g., Mathematics, Programming"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+        </div>
+
+        {/* Duration */}
+        <div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Duration (minutes) <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="number"
+            name="duration"
+            value={formData.duration}
+            onChange={handleInputChange}
+            placeholder="e.g., 60"
+            min="1"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+        </div>
+
+        {/* Total Marks */}
+        <div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Total Marks <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="number"
+            name="totalMarks"
+            value={formData.totalMarks}
+            onChange={handleInputChange}
+            placeholder="e.g., 100"
+            min="1"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+        </div>
+
+        {/* Passing Marks */}
+        <div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Passing Marks <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="number"
+            name="passingMarks"
+            value={formData.passingMarks}
+            onChange={handleInputChange}
+            placeholder="e.g., 40"
+            min="0"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+        </div>
+
+        {/* Start & End Time */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date & Time <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="datetime-local"
+              name="startTime"
+              value={formData.startTime}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+          </div>
+
+          <div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date & Time <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="datetime-local"
+              name="endTime"
+              value={formData.endTime}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+          </div>
+
+        </div>
+
+        {/* Negative Marking */}
+        <div className="flex items-center gap-2 pt-2">
+
+          <input
+            type="checkbox"
+            name="negativeMarking"
+            id="negativeMarking"
+            checked={formData.negativeMarking}
+            onChange={handleInputChange}
+            className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+          />
+
+          <label
+            htmlFor="negativeMarking"
+            className="text-sm font-medium text-gray-700"
+          >
+            Negative Marking
+          </label>
+
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3 pt-4">
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowModal(false);
+              resetForm();
+            }}
+            disabled={submitting}
+            className="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium py-2 rounded-lg transition disabled:opacity-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex-1 bg-blue-600 text-white hover:bg-blue-700 font-medium py-2 rounded-lg transition disabled:opacity-50"
+          >
+            {submitting
+              ? isEditing
+                ? "Updating..."
+                : "Creating..."
+              : isEditing
+              ? "Update"
+              : "Save as Draft"}
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+)}
     </div>
   );
 };
