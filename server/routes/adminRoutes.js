@@ -11,6 +11,13 @@ const { protect, admin, authorizeRoles } = require('../middleware/authMiddleware
 router.get('/dashboard-stats', protect, admin, getAdminDashboardStats);
 
 router.get(
+	'/results/stats',
+	protect,
+	authorizeRoles('admin', 'owner'),
+	getAdminResultsStats
+);
+
+router.get(
 	'/results/summary',
 	protect,
 	authorizeRoles('admin', 'owner'),
@@ -24,11 +31,6 @@ router.get(
 	getAdminExamResults
 );
 
-router.get(
-	'/results/stats',
-	protect,
-	authorizeRoles('admin', 'owner'),
-	getAdminResultsStats
-);
+
 
 module.exports = router;

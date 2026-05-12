@@ -1065,14 +1065,15 @@ const getLiveExams = async (req, res) => {
   }
 };
 
-// @desc    Get top 5 active exams for admin dashboard
+// @desc    Get top 5 recent exams for admin dashboard
 // @route   GET /api/exams/dashboard-summary
 // @access  Private (Admin/Owner)
 const getDashboardSummaryExams = async (req, res) => {
   try {
     const exams = await Exam.find({
-      status: 'active'
+      status: { $in: ['draft', 'active', 'completed'] }
     })
+      .select('name subject duration totalMarks questions attemptCount latestAttemptAt startTime endTime createdAt status')
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();

@@ -174,21 +174,34 @@ const AdminQuestionBank = () => {
   };
 
   return (
-    <div className="p-6">
+    
+    <div className="h-[calc(100vh-120px)] overflow-y-auto dashboard-scrollbar p-6">
       {/* Header Section */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">QuestionBank</h1>
-        </div>
+      
+      <div className="mb-8 flex items-center justify-between">
 
-        {/* Create Question Button */}
-        <button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all"
-        >
-          + Create Question
-        </button>
-      </div>
+  {/* LEFT */}
+  <div>
+
+    <h1 className="text-[42px] leading-[1.1] font-bold tracking-[-1px] text-slate-900">
+      Question Bank
+    </h1>
+
+    <p className="mt-2 text-[15px] text-slate-500">
+      Manage and organize exam questions
+    </p>
+
+  </div>
+
+  {/* RIGHT */}
+  <button
+    onClick={openCreateModal}
+    className="h-12 px-6 rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold shadow-sm transition-all duration-200"
+  >
+    + Create Question
+  </button>
+
+</div>
 
       {/* Loading State */}
       {loading && (

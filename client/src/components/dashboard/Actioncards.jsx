@@ -1,16 +1,15 @@
 const ActionCard = ({ title, description, borderColor, icon }) => {
   return (
     <div
-      className={`bg-white p-6 rounded-xl shadow 
-                  hover:shadow-lg hover:-translate-y-1 
-                  transition-all duration-200 
-                  cursor-pointer border-l-4 ${borderColor}`}
+      className={`bg-white p-6 rounded-lg shadow-sm border-l-4 ${
+        borderColor || 'border-blue-500'
+      } hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5`}
     >
-      <h4 className="text-lg font-bold text-gray-800">
-        {icon} {title}
+      <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+        <span className="text-lg">{icon}</span> {title}
       </h4>
 
-      <p className="text-gray-500 mt-2 text-sm">
+      <p className="text-gray-600 mt-2 text-sm">
         {description}
       </p>
     </div>
