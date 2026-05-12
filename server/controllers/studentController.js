@@ -32,7 +32,10 @@ const getStudentDashboard = async (req, res) => {
         }
 
         // 4️⃣ Calculate total hours from timeTaken (convert seconds to hours)
-        const totalSeconds = results.reduce((sum, result) => sum + (result.timeTaken || 0), 0);
+        const totalSeconds = results.reduce(
+  (sum, result) => sum + (result.timeTaken || 0),
+  0
+);
         const totalHours = (totalSeconds / 3600).toFixed(2);
 
         // 5️⃣ Get active exams count
@@ -40,12 +43,17 @@ const getStudentDashboard = async (req, res) => {
         try {
             const now = new Date();
             
-            activeExams = await Exam.countDocuments({
-                status: "active",
-                startTime: { $lte: now },
-                endTime: { $gte: now },
-                "questions.0": { $exists: true }
-            });
+            const attemptedExamIds = results.map(
+  (result) => result.exam?.toString()
+);
+
+activeExams = await Exam.countDocuments({
+  status: "active",
+  startTime: { $lte: now },
+  endTime: { $gte: now },
+  "questions.0": { $exists: true },
+  _id: { $nin: attemptedExamIds }
+});
         } catch (error) {
             console.error("Error fetching active exams:", error.message);
             activeExams = 0;

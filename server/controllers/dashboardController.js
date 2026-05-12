@@ -95,12 +95,18 @@ const getAdminDashboardStats = async (req, res) => {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    const studentsAttemptedToday = await ExamSession.countDocuments({
-      createdAt: {
-        $gte: todayStart,
-        $lte: todayEnd
-      }
-    });
+    const uniqueStudents = await ExamSession.distinct(
+  "student",
+  {
+    createdAt: {
+      $gte: todayStart,
+      $lte: todayEnd
+    }
+  }
+);
+
+const studentsAttemptedToday =
+  uniqueStudents.length;
 
     res.status(200).json({
       totalExams,
