@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAdminDashboardStats } = require('../controllers/dashboardController');
+const { getAdminDashboardStats, getExamResultsById } = require('../controllers/dashboardController');
 const {
 	getAdminResultsSummary,
 	getAdminExamResults,
@@ -29,6 +29,13 @@ router.get(
 	protect,
 	authorizeRoles('admin', 'owner'),
 	getAdminExamResults
+);
+
+router.get(
+  "/exams/:id/results",
+  protect,
+  admin,
+  getExamResultsById
 );
 
 

@@ -85,7 +85,11 @@ const examSchema = mongoose.Schema({
     latestAttemptAt: {
         type: Date,
         default: null
-    }
+    },
+    hiddenFromDashboard: {
+  type: Boolean,
+  default: false
+}
 }, {
     timestamps: true
 });

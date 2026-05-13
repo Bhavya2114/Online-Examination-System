@@ -1070,8 +1070,9 @@ const getLiveExams = async (req, res) => {
 const getDashboardSummaryExams = async (req, res) => {
   try {
     const exams = await Exam.find({
-      status: { $in: ['draft', 'active', 'completed'] }
-    })
+  status: { $in: ['draft', 'active', 'completed'] },
+  hiddenFromDashboard: false
+})
       .select('name subject duration totalMarks questions attemptCount latestAttemptAt startTime endTime createdAt status')
       .sort({ createdAt: -1 })
       .limit(5)
@@ -1087,7 +1088,34 @@ const getDashboardSummaryExams = async (req, res) => {
   }
 };
 
+const hideExamFromDashboard = async (
+  req,
+  res
+) => {
+
+  try {
+
+    await Exam.findByIdAndUpdate(
+      req.params.id,
+      {
+        hiddenFromDashboard: true
+      }
+    );
+
+    res.status(200).json({
+      message:
+        "Exam removed from dashboard"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+};
 
 
 
-module.exports = { createExam, getAllExams, startExam, getExamAttempt, getExamById, submitExam, completeExam, updateExam, deleteExam, addQuestionsToExam, getLiveExams, getDashboardSummaryExams };
+module.exports = { createExam, getAllExams, startExam, getExamAttempt, getExamById, submitExam, completeExam, updateExam, deleteExam, addQuestionsToExam, getLiveExams, getDashboardSummaryExams, hideExamFromDashboard };

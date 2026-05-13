@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createExam, getAllExams, startExam, getExamAttempt, getExamById, submitExam , completeExam, updateExam, deleteExam, addQuestionsToExam, getLiveExams, getDashboardSummaryExams } = require('../controllers/examController');
+const { createExam, getAllExams, startExam, getExamAttempt, getExamById, submitExam , completeExam, updateExam, deleteExam, addQuestionsToExam, getLiveExams, getDashboardSummaryExams, hideExamFromDashboard } = require('../controllers/examController');
 const { protect, admin , studentOnly , authorizeRoles } = require('../middleware/authMiddleware');
 
 router.post('/', protect, admin, createExam);
@@ -34,6 +34,12 @@ router.delete(
   deleteExam
 );
 
+router.put(
+  "/:id/hide",
+  protect,
+  admin,
+  hideExamFromDashboard
+);
 
 
 module.exports = router;

@@ -10,6 +10,8 @@ import {
 import api from '../../api/axiosInstance';
 import Loader from '../../components/common/Loader';
 import { toast } from 'react-hot-toast';
+import ExamDetailsModal from "./ExamDetailsModal";
+import { motion } from "framer-motion";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -23,8 +25,14 @@ const AdminDashboard = () => {
     studentsAttemptedToday: 0
   });
 
+  const [hiddenRows, setHiddenRows] = useState([]);
   const [dashboardExams, setDashboardExams] = useState([]);
   const [animateProgress, setAnimateProgress] = useState(false);
+
+  const [selectedExam, setSelectedExam] = useState(null);
+const [examResults, setExamResults] = useState([]);
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [loadingResults, setLoadingResults] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -97,58 +105,77 @@ const AdminDashboard = () => {
 
   const getExamProgress = (exam) => {
 
-  const startTime = exam.startTime
-    ? new Date(exam.startTime)
-    : null;
-
-  const endTime = exam.endTime
-    ? new Date(exam.endTime)
-    : null;
-
+  const start = new Date(exam.startTime);
+  const end = new Date(exam.endTime);
   const now = new Date();
 
-  if (
-    !startTime ||
-    !endTime ||
-    Number.isNaN(startTime.getTime()) ||
-    Number.isNaN(endTime.getTime())
-  ) {
-    return {
-      progress: 0,
-      elapsedText: '0h / 0h',
-      percentText: '0% elapsed'
-    };
-  }
+  const totalMs = end - start;
 
-  const totalWindow =
-    endTime.getTime() - startTime.getTime();
+  const elapsedMs = Math.min(
+    Math.max(now - start, 0),
+    totalMs
+  );
 
-  const elapsedWindow =
-    now.getTime() - startTime.getTime();
-
-  const progress = Math.max(
-    0,
-    Math.min(
-      100,
-      (elapsedWindow / totalWindow) * 100
-    )
+  const progress = Math.min(
+    Math.round((elapsedMs / totalMs) * 100),
+    100
   );
 
   const totalHours = Math.max(
     1,
-    Math.floor(totalWindow / (1000 * 60 * 60))
+    Math.floor(totalMs / (1000 * 60 * 60))
   );
 
   const elapsedHours = Math.max(
     0,
-    Math.floor(elapsedWindow / (1000 * 60 * 60))
+    Math.floor(elapsedMs / (1000 * 60 * 60))
   );
+
+  const isCompleted = now >= end;
 
   return {
     progress,
-    elapsedText: `${elapsedHours}h / ${totalHours}h`,
-    percentText: `${Math.round(progress)}% elapsed`
+
+    elapsedText: isCompleted
+      ? "Completed"
+      : `${elapsedHours}h / ${totalHours}h`,
+
+    percentText: isCompleted
+      ? "100% elapsed"
+      : `${progress}% elapsed`
   };
+};
+
+const handleViewExam = async (examId) => {
+
+  try {
+
+    setLoadingResults(true);
+    setIsModalOpen(true);
+
+    const response = await api.get(
+      `/admin/exams/${examId}/results`
+    );
+
+    setSelectedExam(response.data.exam);
+    setExamResults(response.data.results);
+
+  } catch (error) {
+
+    console.error(
+      "Error fetching exam results:",
+      error
+    );
+
+    toast.error("Failed to load exam results");
+
+    setIsModalOpen(false);
+
+  } finally {
+
+    setLoadingResults(false);
+
+  }
 };
 
   const getStatusMeta = (exam) => {
@@ -170,11 +197,17 @@ const AdminDashboard = () => {
       };
     }
 
+    
     return {
       label: 'Draft',
       className: 'bg-slate-200 text-slate-700'
     };
   };
+
+  const visibleExams = dashboardExams.filter(
+  (exam) =>
+    !hiddenRows.includes(exam._id)
+);
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
@@ -329,9 +362,10 @@ const AdminDashboard = () => {
                 </thead>
 
                 {/* Table Body */}
+                
                 <tbody>
 
-                  {dashboardExams.map((exam) => {
+                  {visibleExams.map((exam) => {
 
                     const questionCount = getQuestionCount(exam);
 
@@ -347,16 +381,67 @@ const AdminDashboard = () => {
 
                     return (
 
-                      <tr
-                        key={exam._id}
-                        className="
-                          bg-white
-                          hover:bg-violet-50/40
-                          transition-all
-                          duration-200
-                          hover:scale-[0.998]
-                        "
-                      >
+                      <motion.tr
+  key={exam._id}
+
+  drag={
+    exam.status?.toLowerCase() === "completed"
+      ? "x"
+      : false
+  }
+
+  dragConstraints={{
+    left: 0,
+    right: 140
+  }}
+
+  onDragEnd={async (event, info) => {
+
+  if (
+    exam.status?.toLowerCase() ===
+      "completed" &&
+    info.offset.x > 120
+  ) {
+
+    const confirmed = window.confirm(
+      "Remove this completed exam from Recent Exams?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+
+      await api.put(
+  `/exams/${exam._id}/hide`
+);
+
+      setHiddenRows((prev) => [
+        ...prev,
+        exam._id
+      ]);
+
+      toast.success(
+        "Removed from dashboard"
+      );
+
+    } catch (error) {
+
+      toast.error(
+        "Failed to remove exam"
+      );
+    }
+  }
+}}
+
+  className="
+    bg-white
+    hover:bg-violet-50/40
+    transition-all
+    duration-200
+    hover:scale-[0.998]
+  "
+>
+                       
 
                         {/* Exam Name */}
                         <td className="px-4 py-5 border-b border-slate-100">
@@ -437,15 +522,14 @@ const AdminDashboard = () => {
                         <td className="px-4 py-5 border-b border-slate-100">
 
                           <button
-                            className="text-[#5c51e8] hover:text-[#4f46e5] text-sm font-semibold transition-colors"
-                            onClick={() => navigate(`/admin/exam/${exam._id}`)}
-                          >
-                            View
-                          </button>
-
+  onClick={() => handleViewExam(exam._id)}
+  className="text-violet-600 font-medium hover:underline"
+>
+  View
+</button>
                         </td>
 
-                      </tr>
+                      </motion.tr>
                     );
                   })}
 
@@ -453,12 +537,27 @@ const AdminDashboard = () => {
 
               </table>
 
+
+
             </div>
           )}
+
+          
 
         </div>
 
       </div>
+
+      {
+  isModalOpen && (
+    <ExamDetailsModal
+      exam={selectedExam}
+      results={examResults}
+      loading={loadingResults}
+      onClose={() => setIsModalOpen(false)}
+    />
+  )
+}
 
     </div>
   );

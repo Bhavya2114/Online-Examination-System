@@ -172,9 +172,56 @@ const getStudentDashboardExams = async (req, res) => {
   }
 };
 
+const getExamResultsById = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    // Exam details
+    const exam = await Exam.findById(id)
+      .select(
+        "name subject duration totalMarks passingMarks startTime endTime"
+      )
+      .lean();
+
+    if (!exam) {
+      return res.status(404).json({
+        message: "Exam not found",
+      });
+    }
+
+    // Student results
+    const results = await Result.find({
+      exam: id,
+    })
+      .populate(
+        "student",
+        "name email userIdNumber"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      exam,
+      results,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Get exam results error:",
+      error.message
+    );
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   getStudentDashboard,
   getAdminDashboardStats,
   getStudentDashboardExams,
+  getExamResultsById,
 };
