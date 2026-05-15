@@ -70,7 +70,7 @@ const Exam = () => {
 
 const examsWithState = exams.map((exam) => {
 
-  let examState = "scheduled";
+  let examState = exam.status || "draft";
 
   if (
     new Date(exam.startTime) <= now &&

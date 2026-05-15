@@ -121,21 +121,23 @@ const ManageExams = () => {
   };
 
   const openEditModal = (exam) => {
-    setFormData({
-      name: exam.name,
-      subject: exam.subject,
-      duration: exam.duration.toString(),
-      totalMarks: exam.totalMarks.toString(),
-      passingMarks: exam.passingMarks.toString(),
-      negativeMarking: exam.negativeMarking || false,
-      startTime: formatDateForInput(exam.startTime),
-      endTime: formatDateForInput(exam.endTime),
-    });
+  console.log("Editing exam:", exam);
 
-    setIsEditing(true);
-    setSelectedExamId(exam._id);
-    setShowModal(true);
-  };
+  setFormData({
+    name: exam.name || "",
+    subject: exam.subject || "",
+    duration: exam.duration?.toString() || "",
+    totalMarks: exam.totalMarks?.toString() || "",
+    passingMarks: exam.passingMarks?.toString() || "",
+    negativeMarking: exam.negativeMarking || false,
+    startTime: formatDateForInput(exam.startTime),
+    endTime: formatDateForInput(exam.endTime),
+  });
+
+  setIsEditing(true);
+  setSelectedExamId(exam._id);
+  setShowModal(true);
+};
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -345,12 +347,12 @@ const ManageExams = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
 
           {exams.map((exam) => {
-            const examState = exam.examState || "draft";
+            const examState = exam.status || "draft";
 
-            const isDraft = examState === "draft";
-            const isDraftExpired = examState === "draft_expired";
-            const isActive = examState === "active";
-            const isCompleted = examState === "completed";
+const isDraft = examState === "draft";
+const isDraftExpired = examState === "draft_expired";
+const isActive = examState === "active";
+const isCompleted = examState === "completed";
 
             const attemptCount = exam.attemptCount || 0;
 
@@ -442,62 +444,76 @@ const ManageExams = () => {
                   </p>
 
                   <p>
-                    <span className="font-semibold text-slate-800">
-                      Attempts:
-                    </span>{" "}
-                    {attemptCount}
-                  </p>
+  <span className="font-semibold text-slate-800">
+    Start:
+  </span>{" "}
+  {new Date(exam.startTime).toLocaleString()}
+</p>
+
+<p>
+  <span className="font-semibold text-slate-800">
+    End:
+  </span>{" "}
+  {new Date(exam.endTime).toLocaleString()}
+</p>
+
+                  {!isDraft && (
+  <p>
+    <span className="font-semibold text-slate-800">
+      Attempts:
+    </span>{" "}
+    {attemptCount}
+  </p>
+)}
 
                 </div>
 
                 {/* Actions */}
-                <div className="mt-6 space-y-3">
+<div className="mt-6 space-y-3">
 
-                  {(isDraft || isDraftExpired) && (
-                    <div className="flex gap-3">
+  {(isDraft || isDraftExpired) && (
+    <>
+      {/* Top Buttons */}
+      <div className="flex gap-3">
 
-                      {showEdit && (
-                        <button
-                          onClick={() => openEditModal(exam)}
-                          className="flex-1 h-11 rounded-2xl bg-slate-100 hover:bg-slate-200 text-[#2563eb] font-semibold transition-all duration-200"
-                        >
-                          Edit
-                        </button>
-                      )}
+        <button
+          onClick={() => handleAddQuestion(exam)}
+          className="flex-1 h-11 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold transition-all duration-200"
+        >
+          + Add Question
+        </button>
 
-                      {showDelete && (
-                        <button
-                          onClick={() => handleDelete(exam._id)}
-                          className="flex-1 h-11 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-semibold transition-all duration-200"
-                        >
-                          Delete
-                        </button>
-                      )}
+        <button
+          onClick={() => openEditModal(exam)}
+          className="flex-1 h-11 rounded-2xl bg-slate-100 hover:bg-slate-200 text-blue-600 font-semibold transition-all duration-200"
+        >
+          Edit
+        </button>
 
-                    </div>
-                  )}
+      </div>
 
-                  {showAddQuestion && (
-                    <button
-                      onClick={() => handleAddQuestion(exam)}
-                      className="w-full h-11 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold transition-all duration-200"
-                    >
-                      + Add Question
-                    </button>
-                  )}
+      {/* Delete */}
+      <button
+        onClick={() => handleDelete(exam._id)}
+        className="w-full h-11 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-200"
+      >
+        Delete Exam
+      </button>
+    </>
+  )}
 
-                  {(isActive || isCompleted) && (
-                    <button
-                      onClick={() =>
-                        (window.location.href = `/admin/results/${exam._id}`)
-                      }
-                      className="w-full h-11 rounded-2xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-semibold transition-all duration-200"
-                    >
-                      View Results
-                    </button>
-                  )}
+  {(isActive || isCompleted) && (
+    <button
+      onClick={() =>
+        (window.location.href = `/admin/results/${exam._id}`)
+      }
+      className="w-full h-11 rounded-2xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-semibold transition-all duration-200"
+    >
+      View Results
+    </button>
+  )}
 
-                </div>
+</div>
 
               </div>
             );
@@ -718,6 +734,127 @@ const ManageExams = () => {
         </div>
 
       </form>
+
+    </div>
+
+  </div>
+)}
+{/* Question Modal */}
+{isQuestionModalOpen && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+
+    <div className="bg-white w-full max-w-3xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+
+        <h2 className="text-2xl font-bold">
+          Add Questions
+        </h2>
+
+        <button
+          onClick={() => setIsQuestionModalOpen(false)}
+          className="text-2xl text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      {/* Loading */}
+      {loadingQuestions ? (
+        <p>Loading questions...</p>
+      ) : questionsData.length === 0 ? (
+        <p>No questions found</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+          {questionsData.map((question) => (
+
+  <div
+    key={question._id}
+    className={`border rounded-2xl p-4 transition-all cursor-pointer hover:shadow-md
+      ${
+        selectedQuestions.includes(question._id)
+          ? "border-emerald-500 bg-emerald-50"
+          : "border-slate-200 bg-white"
+      }`}
+    onClick={() => toggleQuestionSelection(question._id)}
+  >
+
+    {/* Top */}
+    <div className="flex items-start justify-between gap-3">
+
+      <div className="flex gap-3">
+
+        <input
+          type="checkbox"
+          checked={selectedQuestions.includes(question._id)}
+          onChange={() =>
+            toggleQuestionSelection(question._id)
+          }
+          onClick={(e) => e.stopPropagation()}
+          className="mt-1"
+        />
+
+        <div>
+
+          <h3 className="font-semibold text-slate-800 leading-snug">
+            {question.questionText}
+          </h3>
+
+          <p className="text-sm text-slate-500 mt-1 capitalize">
+            {question.subject}
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* Difficulty Badge */}
+      <span
+  className={`text-xs font-semibold px-3 py-1 rounded-xl whitespace-nowrap
+    ${
+      question.difficulty?.toLowerCase() === "easy"
+        ? "bg-green-100 text-green-700"
+        : question.difficulty?.toLowerCase() === "medium"
+        ? "bg-yellow-100 text-yellow-700"
+        : "bg-red-100 text-red-700"
+    }`}
+>
+  {question.difficulty}
+</span>
+
+    </div>
+
+  </div>
+
+))}
+
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="flex gap-3 mt-6">
+
+        <button
+          onClick={() => setIsQuestionModalOpen(false)}
+          className="flex-1 h-11 rounded-xl bg-gray-200"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleSaveQuestions}
+          disabled={savingQuestions}
+          className="flex-1 h-11 rounded-xl bg-emerald-600 text-white"
+        >
+          {savingQuestions
+            ? "Saving..."
+            : "Save Questions"}
+        </button>
+
+      </div>
 
     </div>
 

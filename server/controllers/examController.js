@@ -203,23 +203,42 @@ return {
                 // 👑 ADMIN VIEW
                 if (req.user.role === 'admin') {
 
-                    // If admin created this exam → full details
-                    if (exam.createdBy.toString() === req.user._id.toString()) {
-                        return examWithState;
-                    }
+    // If admin created this exam → full details
+    if (exam.createdBy.toString() === req.user._id.toString()) {
+        return {
+            _id: exam._id,
+            name: exam.name,
+            duration: exam.duration,
+            subject: exam.subject,
+            totalMarks: exam.totalMarks,
+            passingMarks: exam.passingMarks,
+            questions: exam.questions || [],
+            attemptCount: exam.attemptCount || 0,
+            negativeMarking: exam.negativeMarking,
+            startTime: exam.startTime,
+            endTime: exam.endTime,
+            status: exam.status,
+            examState
+        };
+    }
 
-                    // Other admins → all fields but with examState
-                    return {
+    // Other admins
+    return {
         _id: exam._id,
         name: exam.name,
         duration: exam.duration,
         subject: exam.subject,
         totalMarks: exam.totalMarks,
+        passingMarks: exam.passingMarks,
+        questions: exam.questions || [],
+        attemptCount: exam.attemptCount || 0,
+        negativeMarking: exam.negativeMarking,
         startTime: exam.startTime,
         endTime: exam.endTime,
+        status: exam.status,
         examState
     };
-                }
+}
 
                 return null;
             } catch (mapError) {
